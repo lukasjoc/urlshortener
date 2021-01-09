@@ -1,16 +1,18 @@
 <template>
-  <section class="section">
-    <span class="subtitle is-3">Enter URL: </span>
-    <b-field>
-      <b-input v-model="urlModel" placeholder="https://" type="url"  size="is-large"></b-input>
+  <section class="">
+
+    <b-field label="Enter URL:">
+      <b-input v-model="urlModel" placeholder="https://" type="url" size="is-large"></b-input>
     </b-field>
-    <b-button @click.stop="minifyUrl(urlModel)" type="is-primary">Convert</b-button>
+    <b-button @click.stop="minifyUrl(urlModel)" type="is-dark">Convert</b-button>
+
     <div v-if="urlsConverted" class="section content convertedBox">
       <div v-for="(url, index) of urlsConverted" :key="index" class="level">
         <span class="link">{{url.url}}</span>
-        <b-button class="is-link is-text" @click="copyToClipBoard(url.urlConverted)">{{url.urlConverted}}</b-button>
+        <b-button class="is-link is-dark is-text" @click="copyToClipBoard(url.urlConverted)">{{url.urlConverted}}</b-button>
       </div>
     </div>
+
   </section>
 </template>
 
