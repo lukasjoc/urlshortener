@@ -21,10 +21,10 @@
 import UrlBox from "./components/UrlBox"
 
 export default {
-  name: "App",
-  components: {
-    UrlBox,
-  },
+	name: "App",
+	components: {
+		UrlBox,
+	},
 }
 </script>
 
