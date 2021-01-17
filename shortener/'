@@ -49,13 +49,17 @@ func main() {
 		url := &URLModel{}
 		ctxURL := fmt.Sprintf("http://%v:%v%v", host, port, ctx.Request.URL.String())
 		found := db.Select("real").Where("generated = ?", ctxURL).First(url)
+
 		if found.RowsAffected == 1 {
-			ctx.Redirect(http.StatusMovedPermanently, found.Value.(*URLModel).Real)
+			ctx.JSON(http.StatusNotFound, gin.H{
+				"found": found,
+			})
+			// ctx.Redirect(http.StatusMovedPermanently, found.(string))
 			return
 		}
 		ctx.JSON(http.StatusNotFound, gin.H{
-			"status": http.StatusNotFound,
-			"query":  ctxURL,
+			"query": ctxURL,
+			"error": found.Error,
 		})
 		return
 	})
@@ -63,20 +67,21 @@ func main() {
 	router.PUT("/save", func(ctx *gin.Context) {
 		url := &URLModel{}
 		ctx.BindJSON(url)
-		found := db.Select("generated").Where("real=? AND ip_v4=?", url.Real, url.IpV4).First(url)
-		if found.RowsAffected == 1 {
-			ctx.JSON(http.StatusOK, gin.H{
-				"status": http.StatusFound,
-				"tip":    fmt.Sprintf("try %v to use it", url.Generated),
-			})
-			return
-		}
+		// found := db.Find(url)
+		// if found != nil {
+		// 	ctx.JSON(http.StatusFound, gin.H{
+		// 		"found": true,
+		// 		"tip":   fmt.Sprintf("try %v to use it", url.GetGenerated()),
+		// 	})
+		// 	return
+		// }
 		db.Create(url)
 		ctx.JSON(http.StatusOK, gin.H{
 			"generated": url.GetGenerated(),
 			"ip_v4":     url.GetIpV4(),
 			"real":      url.GetReal(),
 		})
+
 	})
 
 	log.Fatal(router.Run(fmt.Sprintf(":%v", port)))
