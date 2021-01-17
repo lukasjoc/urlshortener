@@ -15,17 +15,17 @@ import (
 // URLModel ...
 type URLModel struct {
 	gorm.Model
-	// proto.Url
+	*proto.Url
 }
 
 // test http://localhost:5050/Tr-8mZNJ
 func main() {
-	const addrs = "postgres://root:admin@127.0.0.1:53232/urls?sslmode=require"
+	const addrs = "postgres://root@localhost:26257/urls?sslmode=disable"
 	db, err := gorm.Open("postgres", addrs)
 	if err != nil {
 		logrus.Fatal(err)
 	} else {
-		logrus.Info("Connected to cockroach db")
+		logrus.Info("Connected to cockroach cluster")
 	}
 
 	defer db.Close()
@@ -41,7 +41,7 @@ func main() {
 	})
 
 	router.PUT("/save", func(ctx *gin.Context) {
-		url := &proto.Url{}
+		url := &URLModel{}
 		ctx.BindJSON(url)
 		db.Create(url)
 		ctx.JSON(http.StatusOK, gin.H{
