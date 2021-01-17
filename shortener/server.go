@@ -2,25 +2,34 @@ package main
 
 import (
 	"fmt"
-	"html"
 	"net/http"
-	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )
 
+// Url ...
+type Url struct {
+	gorm.Model
+	Real, Generated string
+}
+
 func main() {
 
-	http.HandleFunc("/redirect", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "Redirect, %q", html.EscapeString(r.URL.Path))
+	const addr = "postgres://urlshortener@localhost:26257/urlshortener?sslmode=require"
+	db, err := gorm.Open("postgres", addr)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+	db.LogMode(false)
+	db.AutoMigrate(&Url{})
+
+	router := gin.Default()
+
+	router.GET("/save", func(ctx *gin.Context) {
+		db.Create(&Url{})
 	})
 
-	s := &http.Server{
-		Addr:           ":5050",
-		ReadTimeout:    10 * time.Second,
-		WriteTimeout:   10 * time.Second,
-		MaxHeaderBytes: 1 << 20,
-	}
-	logrus.Info("Server started on: ", s.Addr)
-	logrus.Fatal(s.ListenAndServe())
+	logrus.Fatal(router.Run(fmt.Sprintf(":%d", 5050)))
 }
