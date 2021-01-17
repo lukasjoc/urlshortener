@@ -1,0 +1,6 @@
+#!/bin/bash
+
+protoc \
+  -I=$PWD \
+  --go_opt=paths=source_relative \
+  --go_out=$PWD proto/url.proto

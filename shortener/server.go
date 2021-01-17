@@ -3,33 +3,46 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
+	"github.com/jinzhu/gorm"
 	"github.com/sirupsen/logrus"
+	"gitub.com/urlshortener/proto"
 )
 
-// Url ...
-type Url struct {
+// URLModel
+type URLModel struct {
 	gorm.Model
-	Real, Generated string
+	proto.Url
 }
 
+// test http://localhost:5050/Tr-8mZNJ
 func main() {
-
-	const addr = "postgres://urlshortener@localhost:26257/urlshortener?sslmode=require"
-	db, err := gorm.Open("postgres", addr)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer db.Close()
-	db.LogMode(false)
-	db.AutoMigrate(&Url{})
-
 	router := gin.Default()
-
-	router.GET("/save", func(ctx *gin.Context) {
-		db.Create(&Url{})
+	router.GET("/:url", func(ctx *gin.Context) {
+		// TODO:  find url
+		ctx.JSON(http.StatusNotImplemented, gin.H{
+			"message": "Not Implemented",
+		})
 	})
+	router.PUT("/save", func(ctx *gin.Context) {
+		// TODO: save to db
+		url := &proto.Url{}
+		ctx.BindJSON(url)
+		ctx.JSON(http.StatusOK, gin.H{
+			"generated": url.GetGenerated(),
+			"ip_v4":     url.GetIpV4(),
+			"real":      url.GetReal(),
+		})
 
-	logrus.Fatal(router.Run(fmt.Sprintf(":%d", 5050)))
+	})
+	if os.Getenv("GIN_MODE") == "release" {
+		gin.SetMode(gin.ReleaseMode)
+	}
+	port := "5050"
+	if os.Getenv("SERVICE_PORT") != "" {
+		port = os.Getenv("SERVICE_PORT")
+	}
+	logrus.Fatal(router.Run(fmt.Sprintf(":%v", port)))
 }

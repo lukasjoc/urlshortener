@@ -1,0 +1,12 @@
+syntax = "proto3";
+package proto;
+
+option go_package = "github.com/lukasjoc/urlshortener/shortener/proto";
+
+// Defines the Url Type
+message Url {
+  string ip_v4 = 1;
+  string real = 2;
+  string generated = 3;
+}
+
