@@ -1,6 +1,6 @@
 <template>
   <section>
-    <ValidationObserver ref="observer" v-slot="{ invalid }">
+    <validation-observer ref="observer" v-slot="{ invalid }">
     <form @submit.prevent="onSubmit()" novalidate>
       <validation-provider
         name="url"
@@ -23,7 +23,7 @@
       </validation-provider>
         <b-button type="is-dark" native-type="submit">Convert</b-button>
     </form>
-    </ValidationObserver>
+    </validation-observer>
 
     <div v-if="urlsConverted" class="section content convertedBox">
       <div v-for="(url, index) of urlsConverted" :key="index" class="level">
@@ -69,17 +69,18 @@ export default {
 		}
 	},
 	methods: {
-		minifyUrl(url) {
-			// TODO: check if server is reachable first
-			// TODO: check if url is available
-			// TODO: add localstorage to save converted url
-			const base = "http://localhost:6060/"
-			const urlSpec = nanoid(8)
-			// const payload = { url, urlSpec }
-			// check availability
-			// save if available else return false and return possible from server
-			// let ok = checkAvailability(payload)
-			this.urlsConverted.push({ url, urlConverted: `${base}${urlSpec}` })
+		async minifyUrl(url) {
+			const suffix = nanoid(8)
+			const payload = {
+				"ip_v4": "127.0.0.1",
+				"generated": `${this.axios.defaults.baseURL}/${suffix}`,
+				"real": url,
+			}
+			await this.axios.post("/save", payload)
+			this.urlsConverted.push({
+				url,
+				urlConverted: `${this.axios.defaults.baseURL}/${suffix}`
+			})
 		},
 		async onSubmit() {
 			const valid = await this.$refs.observer.validate()
@@ -99,5 +100,4 @@ export default {
 	},
 }
 </script>
-
 

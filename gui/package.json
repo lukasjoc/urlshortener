@@ -8,10 +8,12 @@
     "lint": "eslint --ext .js,.vue --fix ./"
   },
   "dependencies": {
+    "axios": "^0.21.1",
     "buefy": "^0.9.4",
     "register-service-worker": "^1.7.1",
     "vee-validate": "^3.4.5",
-    "vue": "^2.6.11"
+    "vue": "^2.6.11",
+    "vue-axios": "^3.2.2"
   },
   "devDependencies": {
     "@vue/cli-plugin-pwa": "~4.5.0",

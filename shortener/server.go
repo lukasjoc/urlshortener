@@ -5,11 +5,12 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	log "github.com/sirupsen/logrus"
-	"gitub.com/urlshortener/proto"
+	"github.com/urlshortener/proto"
 )
 
 // URLModel defines the url_models schema / table
@@ -45,6 +46,7 @@ func main() {
 	db.AutoMigrate(&URLModel{})
 
 	router := gin.Default()
+	router.Use(cors.Default())
 	router.GET("/:url", func(ctx *gin.Context) {
 		url := &URLModel{}
 		ctxURL := fmt.Sprintf("http://%v:%v%v", host, port, ctx.Request.URL.String())
@@ -60,10 +62,10 @@ func main() {
 		return
 	})
 
-	router.PUT("/save", func(ctx *gin.Context) {
+	router.POST("/save", func(ctx *gin.Context) {
 		url := &URLModel{}
 		ctx.BindJSON(url)
-		found := db.Select("generated").Where("real=? AND ip_v4=?", url.Real, url.IpV4).First(url)
+		found := db.Select("generated").Where("real=? AND generated=?", url.Real, url.Generated).First(url)
 		if found.RowsAffected == 1 {
 			ctx.JSON(http.StatusOK, gin.H{
 				"status": http.StatusFound,
